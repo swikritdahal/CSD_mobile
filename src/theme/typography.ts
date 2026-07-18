@@ -1,39 +1,43 @@
 export const typography = {
-  fontFamily: {
-    regular: "Inter-Regular",
-    medium: "Inter-Medium",
-    semiBold: "Inter-SemiBold",
-    bold: "Inter-Bold",
+  display: {
+    fontSize: 40,
+    fontWeight: "700",
+    lineHeight: 48,
   },
 
-  size: {
-    display: 40,
-    h1: 32,
-    h2: 28,
-    h3: 24,
-    title: 20,
-    body: 16,
-    bodySmall: 14,
-    caption: 12,
-    overline: 10,
+  heading: {
+    fontSize: 32,
+    fontWeight: "700",
+    lineHeight: 40,
   },
 
-  lineHeight: {
-    display: 48,
-    h1: 40,
-    h2: 36,
-    h3: 32,
-    title: 28,
-    body: 24,
-    bodySmall: 20,
-    caption: 16,
-    overline: 14,
+  title: {
+    fontSize: 22,
+    fontWeight: "600",
+    lineHeight: 30,
   },
 
-  weight: {
-    regular: "400",
-    medium: "500",
-    semiBold: "600",
-    bold: "700",
+  body: {
+    fontSize: 16,
+    fontWeight: "400",
+    lineHeight: 24,
+  },
+
+  text: {
+    fontSize: 16,
+    fontWeight: "500",
+    lineHeight: 24,
+  },
+
+  bodySmall: {
+    fontSize: 14,
+    fontWeight: "400",
+    lineHeight: 20,
+  },
+
+  caption: {
+    fontSize: 12,
+    fontWeight: "400",
+    lineHeight: 16,
   },
 };
