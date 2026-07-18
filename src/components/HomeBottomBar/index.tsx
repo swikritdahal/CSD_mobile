@@ -1,64 +1,70 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { History, LogIn, LogOut } from "lucide-react-native";
+import { router } from "expo-router";
+import { ClipboardList, LogOut } from "lucide-react-native";
 
 import RecordButton from "@/src/components/RecordButton";
 import { colors, fontFamilies, spacing } from "@/src/theme";
 
 interface HomeBottomBarProps {
-  isSignedIn: boolean;
-  onToggleAuth: () => void;
   onRecord?: () => void;
-  onHistory?: () => void;
 }
 
-export default function HomeBottomBar({
-  isSignedIn,
-  onToggleAuth,
-  onRecord,
-  onHistory,
-}: HomeBottomBarProps) {
+export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
+  const handleHistory = () => {
+    router.push("/history");
+  };
+
+  const handleLogout = () => {
+    router.push("/sign-in");
+  };
+
   return (
-    <View style={styles.container}>
-      <Pressable style={styles.sideButton} onPress={onHistory}>
-        <History size={24} color={colors.text.secondary} />
-        <Text style={styles.label}>History</Text>
-      </Pressable>
+    <View style={styles.wrapper}>
+      <View style={styles.dock}>
+        <View style={styles.content}>
+          <Pressable style={styles.sideButton} onPress={handleHistory}>
+            <ClipboardList size={24} color={colors.text.secondary} />
+            <Text style={styles.label}>History</Text>
+          </Pressable>
 
-      <RecordButton onPress={onRecord} />
+          <View style={styles.recordButton}>
+            <RecordButton onPress={onRecord} />
+          </View>
 
-      <Pressable style={styles.sideButton} onPress={onToggleAuth}>
-        {isSignedIn ? (
-          <>
+          <Pressable style={styles.sideButton} onPress={handleLogout}>
             <LogOut size={24} color={colors.text.secondary} />
             <Text style={styles.label}>Logout</Text>
-          </>
-        ) : (
-          <>
-            <LogIn size={24} color={colors.text.secondary} />
-            <Text style={styles.label}>Login</Text>
-          </>
-        )}
-      </Pressable>
+          </Pressable>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
+  wrapper: {
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+  },
+
+  dock: {
+    width: "100%",
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
   },
 
   sideButton: {
@@ -66,6 +72,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: spacing.xs,
     minWidth: 64,
+  },
+
+  recordButton: {
+    marginTop: -44,
   },
 
   label: {

@@ -1,36 +1,16 @@
-import React, { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useFonts } from "expo-font";
-import { useLocalSearchParams } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import HomeBottomBar from "@/src/components/HomeBottomBar";
 import HomeHeader from "@/src/components/HomeHeader";
-import { colors, fontFamilies, fontSources, spacing } from "@/src/theme";
+import { colors, fontFamilies, spacing } from "@/src/theme";
 
 export default function Home() {
-  const { mode } = useLocalSearchParams<{ mode?: string }>();
-  const [isSignedIn, setIsSignedIn] = useState(mode === "signedIn");
-  const [fontsLoaded] = useFonts(fontSources);
-
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <HomeHeader isSignedIn={isSignedIn} />
+        <HomeHeader />
 
         <View style={styles.centerContent}>
           <Image
@@ -40,19 +20,14 @@ export default function Home() {
           />
 
           <Text style={styles.instruction}>
-            Click on record (bottom-center){"\n"}
-            so we diagnose what could be{"\n"}
+            Click on record so we can{"\n"}
+            diagnose what could be{"\n"}
             wrong with your car.
           </Text>
         </View>
 
         <View style={styles.bottomBarWrapper}>
-          <HomeBottomBar
-            isSignedIn={isSignedIn}
-            onToggleAuth={() => setIsSignedIn((prev) => !prev)}
-            onRecord={() => {}}
-            onHistory={() => {}}
-          />
+          <HomeBottomBar />
         </View>
       </View>
     </SafeAreaView>
@@ -60,16 +35,9 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background,
-  },
-
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.backgroundGolden,
   },
 
   container: {
@@ -82,20 +50,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: spacing.xl,
-    gap: spacing.xl,
   },
 
   illustration: {
-    width: 280,
-    height: 280,
+    width: 340,
+    height: 340,
   },
 
   instruction: {
-    fontFamily: fontFamilies.regular,
+    fontFamily: fontFamilies.italic,
     fontSize: 16,
     lineHeight: 24,
     textAlign: "center",
-    color: colors.text.secondary,
+    color: colors.primaryLight,
+    marginTop: -40,
   },
 
   bottomBarWrapper: {

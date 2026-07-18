@@ -4,24 +4,12 @@ import { User } from "lucide-react-native";
 
 import { colors, fontFamilies, spacing } from "@/src/theme";
 
-interface HomeHeaderProps {
-  name?: string;
-  isSignedIn?: boolean;
-}
-
-export default function HomeHeader({
-  name = "Abhaya",
-  isSignedIn = false,
-}: HomeHeaderProps) {
+export default function HomeHeader() {
   return (
     <View style={styles.container}>
       <View style={styles.greeting}>
-        <Text style={styles.hiText}>
-          {isSignedIn ? `Hi ${name},` : "Hi there,"}
-        </Text>
-        <Text style={styles.welcomeText}>
-          {isSignedIn ? "Welcome back!" : "Welcome!"}
-        </Text>
+        <Text style={styles.hiText}>Hi Abhaya,</Text>
+        <Text style={styles.welcomeText}>Welcome back!</Text>
         <Text style={styles.subtitle}>
           Let&apos;s keep your car{"\n"}running smoothly.
         </Text>
@@ -56,10 +44,10 @@ const styles = StyleSheet.create({
   },
 
   welcomeText: {
-    fontFamily: fontFamilies.bold,
+    fontFamily: fontFamilies.italic,
     fontSize: 32,
     lineHeight: 40,
-    color: colors.text.primary,
+    color: colors.primaryLight,
   },
 
   subtitle: {

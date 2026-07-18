@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  ActivityIndicator,
   ImageBackground,
   Pressable,
   StyleSheet,
@@ -9,31 +8,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { useFonts } from "expo-font";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import AppText from "@/src/components/AppText";
 import Button from "@/src/components/Button";
-import { colors, fontSources, spacing } from "@/src/theme";
+import { colors, spacing } from "@/src/theme";
 
 export default function SplashScreen() {
-  const [fontsLoaded] = useFonts(fontSources);
-
   const handleGetStarted = () => {
-    router.push({ pathname: "/(tabs)", params: { mode: "guest" } });
+    router.push("/(tabs)");
   };
 
   const handleSignIn = () => {
-    router.push({ pathname: "/(tabs)", params: { mode: "signedIn" } });
+    router.push("/sign-in");
   };
-
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
 
   return (
     <ImageBackground
@@ -104,13 +92,6 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background,
-  },
-
   background: {
     flex: 1,
   },

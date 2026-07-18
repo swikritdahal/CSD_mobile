@@ -6,8 +6,13 @@ export const colors = {
 
   // Backgrounds
   background: "#F7F8FA",
+  backgroundGolden: "#FFFBEB",
   surface: "#FFFFFF",
   surfaceSecondary: "#F2F4F6",
+
+  // Accent
+  golden: "#F59E0B",
+  goldenLight: "#FCD34D",
 
   // Text
   text: {
