@@ -6,6 +6,7 @@ export const colors = {
 
   // Backgrounds
   background: "#F7F8FA",
+  backgroundTeal: "#E8F7F8",
   backgroundGolden: "#FFFBEB",
   surface: "#FFFFFF",
   surfaceSecondary: "#F2F4F6",

@@ -15,7 +15,7 @@ export default function RecordButton({ onPress }: RecordButtonProps) {
       style={({ pressed }) => [styles.outerCircle, pressed && styles.pressed]}
     >
       <View style={styles.innerCircle}>
-        <Mic size={32} color="#FFFFFF" />
+        <Mic size={24} color="#FFFFFF" />
       </View>
     </Pressable>
   );
@@ -23,23 +23,23 @@ export default function RecordButton({ onPress }: RecordButtonProps) {
 
 const styles = StyleSheet.create({
   outerCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 8,
   },
 
   innerCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",

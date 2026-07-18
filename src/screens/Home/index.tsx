@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
   },
 
   bottomBarWrapper: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.md,
+    paddingBottom: 0,
   },
 });

@@ -24,7 +24,7 @@ export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
       <View style={styles.dock}>
         <View style={styles.content}>
           <Pressable style={styles.sideButton} onPress={handleHistory}>
-            <ClipboardList size={24} color={colors.text.secondary} />
+            <ClipboardList size={20} color={colors.text.secondary} />
             <Text style={styles.label}>History</Text>
           </Pressable>
 
@@ -33,7 +33,7 @@ export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
           </View>
 
           <Pressable style={styles.sideButton} onPress={handleLogout}>
-            <LogOut size={24} color={colors.text.secondary} />
+            <LogOut size={20} color={colors.text.secondary} />
             <Text style={styles.label}>Logout</Text>
           </Pressable>
         </View>
@@ -45,42 +45,45 @@ export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
 const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+    height: 64,
   },
 
   dock: {
     width: "100%",
+    maxWidth: 300,
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    borderRadius: 28,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 8,
   },
 
   content: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
 
   sideButton: {
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.xs,
-    minWidth: 64,
+    minWidth: 52,
   },
 
   recordButton: {
-    marginTop: -44,
+    marginTop: -36,
   },
 
   label: {
     fontFamily: fontFamilies.regular,
-    fontSize: 12,
+    fontSize: 11,
     color: colors.text.secondary,
   },
 });

@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
+    minHeight: 164,
   },
 
   greeting: {

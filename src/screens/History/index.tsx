@@ -1,89 +1,262 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
-  FlatList,
   Pressable,
   SafeAreaView,
+  SectionList,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, Mic } from "lucide-react-native";
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react-native";
 
+import HomeBottomBar from "@/src/components/HomeBottomBar";
 import { colors, fontFamilies, radius, spacing } from "@/src/theme";
+
+type Status = "healthy" | "needs-attention" | "critical";
 
 interface Recording {
   id: string;
   title: string;
-  date: string;
-  duration: string;
-  result: string;
+  subtitle: string;
+  day: string;
+  monthShort: string;
+  month: string;
+  status: Status;
 }
+
+const STATUS_CONFIG: Record<
+  Status,
+  { color: string; icon: typeof CheckCircle; label: string }
+> = {
+  healthy: {
+    color: colors.success,
+    icon: CheckCircle,
+    label: "Healthy",
+  },
+  "needs-attention": {
+    color: colors.warning,
+    icon: AlertCircle,
+    label: "Needs Attention",
+  },
+  critical: {
+    color: colors.error,
+    icon: AlertTriangle,
+    label: "Critical",
+  },
+};
+
+const FILTERS: { key: string; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "healthy", label: "Healthy" },
+  { key: "needs-attention", label: "Needs Attention" },
+  { key: "critical", label: "Critical" },
+];
 
 const MOCK_RECORDINGS: Recording[] = [
   {
     id: "1",
-    title: "Engine knocking sound",
-    date: "Today, 9:41 AM",
-    duration: "0:05",
-    result: "Possible engine mount issue",
+    title: "Engine idle hum",
+    subtitle: "Likely: Healthy",
+    day: "12",
+    monthShort: "Jul",
+    month: "July 2026",
+    status: "healthy",
   },
   {
     id: "2",
-    title: "Brake squeal",
-    date: "Yesterday, 4:20 PM",
-    duration: "0:04",
-    result: "Brake pads worn",
+    title: "Metallic clicking",
+    subtitle: "Likely: Worn bearing",
+    day: "10",
+    monthShort: "Jul",
+    month: "July 2026",
+    status: "needs-attention",
   },
   {
     id: "3",
-    title: "Suspension noise",
-    date: "Jul 18, 10:15 AM",
-    duration: "0:06",
-    result: "Check shock absorbers",
+    title: "High-pitched squeal",
+    subtitle: "Likely: Belt issue",
+    day: "04",
+    monthShort: "Jul",
+    month: "July 2026",
+    status: "critical",
   },
   {
     id: "4",
-    title: "Exhaust rattle",
-    date: "Jul 17, 6:30 PM",
-    duration: "0:03",
-    result: "Loose heat shield",
+    title: "Engine knocking sound",
+    subtitle: "Likely: Engine mount issue",
+    day: "28",
+    monthShort: "Jun",
+    month: "June 2026",
+    status: "needs-attention",
+  },
+  {
+    id: "5",
+    title: "Brake squeal",
+    subtitle: "Likely: Brake pads worn",
+    day: "15",
+    monthShort: "Jun",
+    month: "June 2026",
+    status: "critical",
   },
 ];
 
+interface Section {
+  title: string;
+  data: Recording[];
+}
+
 export default function History() {
-  const renderItem = ({ item }: { item: Recording }) => (
-    <View style={styles.card}>
-      <View style={styles.iconContainer}>
-        <Mic size={20} color={colors.primary} />
-      </View>
-      <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.meta}>
-          {item.date} • {item.duration}
-        </Text>
-        <Text style={styles.result}>{item.result}</Text>
-      </View>
-    </View>
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const sections = useMemo<Section[]>(() => {
+    const grouped = new Map<string, Recording[]>();
+
+    MOCK_RECORDINGS.forEach((item) => {
+      if (!grouped.has(item.month)) {
+        grouped.set(item.month, []);
+      }
+      grouped.get(item.month)!.push(item);
+    });
+
+    return Array.from(grouped.entries()).map(([title, data]) => ({
+      title,
+      data,
+    }));
+  }, []);
+
+  const renderSectionHeader = ({ section }: { section: Section }) => (
+    <Text style={styles.sectionHeader}>{section.title}</Text>
   );
+
+  const renderItem = ({ item }: { item: Recording }) => {
+    const config = STATUS_CONFIG[item.status];
+    const StatusIcon = config.icon;
+
+    return (
+      <Pressable
+        onPress={() => router.push("/analysis")}
+        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      >
+        <View
+          style={[styles.statusBorder, { backgroundColor: config.color }]}
+        />
+
+        <View style={styles.dateColumn}>
+          <Text style={styles.dayText}>{item.day}</Text>
+          <Text style={styles.monthText}>{item.monthShort}</Text>
+        </View>
+
+        <View style={styles.iconContainer}>
+          <StatusIcon size={20} color={config.color} />
+        </View>
+
+        <View style={styles.cardContent}>
+          <Text style={styles.titleText}>{item.title}</Text>
+          <Text style={styles.subtitleText}>{item.subtitle}</Text>
+        </View>
+
+        <View style={styles.chevronContainer}>
+          <ChevronRight size={20} color={colors.text.tertiary} />
+        </View>
+      </Pressable>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <ChevronLeft size={28} color={colors.text.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>History</Text>
-        <View style={styles.placeholder} />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <ChevronLeft size={24} color={colors.text.primary} />
+          </Pressable>
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>History</Text>
+            <Text style={styles.headerSubtitle}>Your past sound diagnoses</Text>
+          </View>
+        </View>
+
+        <View style={styles.searchRow}>
+          <View style={styles.searchInput}>
+            <Search size={20} color={colors.text.tertiary} />
+            <TextInput
+              style={styles.searchText}
+              placeholder="Search recordings..."
+              placeholderTextColor={colors.text.tertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+          <Pressable style={styles.filterButton}>
+            <SlidersHorizontal size={20} color={colors.text.primary} />
+          </Pressable>
+        </View>
+
+        <View style={styles.chipRow}>
+          {FILTERS.map((filter) => {
+            const isSelected = selectedFilter === filter.key;
+            const isHealthy = filter.key === "healthy";
+            const isCritical = filter.key === "critical";
+            const chipColor = isCritical
+              ? colors.error
+              : isHealthy
+              ? colors.success
+              : filter.key === "needs-attention"
+              ? colors.warning
+              : colors.primary;
+
+            return (
+              <Pressable
+                key={filter.key}
+                onPress={() => setSelectedFilter(filter.key)}
+                style={[
+                  styles.chip,
+                  isSelected && { backgroundColor: chipColor },
+                ]}
+              >
+                {filter.key !== "all" && (
+                  <View
+                    style={[
+                      styles.chipDot,
+                      { backgroundColor: chipColor },
+                      isSelected && { backgroundColor: colors.surface },
+                    ]}
+                  />
+                )}
+                <Text
+                  style={[
+                    styles.chipText,
+                    isSelected && { color: colors.text.inverse },
+                  ]}
+                >
+                  {filter.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          renderSectionHeader={renderSectionHeader}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
 
-      <FlatList
-        data={MOCK_RECORDINGS}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
+      <HomeBottomBar />
     </SafeAreaView>
   );
 }
@@ -94,81 +267,191 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundGolden,
   },
 
+  container: {
+    flex: 1,
+    paddingHorizontal: spacing.xl,
+  },
+
   header: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
+    alignItems: "flex-start",
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    minHeight: 164,
   },
 
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    paddingTop: 4,
+    marginRight: spacing.sm,
+  },
+
+  headerText: {
+    flex: 1,
+  },
+
+  headerTitle: {
+    fontFamily: fontFamilies.regular,
+    fontSize: 32,
+    lineHeight: 40,
+    color: colors.primaryLight,
+  },
+
+  headerSubtitle: {
+    fontFamily: fontFamilies.regular,
+    fontSize: 16,
+    color: colors.text.secondary,
+    marginTop: spacing.xs,
+  },
+
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+
+  searchInput: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.md,
+    height: 48,
+  },
+
+  searchText: {
+    flex: 1,
+    fontFamily: fontFamilies.regular,
+    fontSize: 16,
+    color: colors.text.primary,
+  },
+
+  filterButton: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.lg,
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  headerTitle: {
-    fontFamily: fontFamilies.bold,
-    fontSize: 20,
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+  },
+
+  chipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+
+  chipText: {
+    fontFamily: fontFamilies.regular,
+    fontSize: 14,
     color: colors.text.primary,
   },
 
-  placeholder: {
-    width: 40,
+  listContent: {
+    paddingBottom: spacing.xl,
   },
 
-  list: {
-    padding: spacing.xl,
-    gap: spacing.md,
+  sectionHeader: {
+    fontFamily: fontFamilies.bold,
+    fontSize: 18,
+    color: colors.text.primary,
+    marginBottom: spacing.md,
+    marginTop: spacing.sm,
   },
 
   card: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    padding: spacing.md,
+    marginBottom: spacing.md,
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
 
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.backgroundGolden,
+  cardPressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.99 }],
+  },
+
+  statusBorder: {
+    width: 4,
+    alignSelf: "stretch",
+  },
+
+  dateColumn: {
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: spacing.md,
+  },
+
+  dayText: {
+    fontFamily: fontFamilies.bold,
+    fontSize: 20,
+    color: colors.text.primary,
+  },
+
+  monthText: {
+    fontFamily: fontFamilies.regular,
+    fontSize: 14,
+    color: colors.text.secondary,
+  },
+
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.04)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
   },
 
   cardContent: {
     flex: 1,
-    gap: spacing.xs,
+    paddingVertical: spacing.md,
   },
 
-  title: {
+  titleText: {
     fontFamily: fontFamilies.bold,
-    fontSize: 16,
+    fontSize: 15,
     color: colors.text.primary,
   },
 
-  meta: {
+  subtitleText: {
     fontFamily: fontFamilies.regular,
     fontSize: 13,
     color: colors.text.secondary,
+    marginTop: 2,
   },
 
-  result: {
-    fontFamily: fontFamilies.regular,
-    fontSize: 14,
-    color: colors.primary,
+  chevronContainer: {
+    alignSelf: "flex-start",
+    paddingTop: spacing.md,
+    paddingRight: spacing.md,
+    paddingLeft: spacing.sm,
   },
 });
