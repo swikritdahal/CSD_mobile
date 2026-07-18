@@ -1,14 +1,39 @@
 import React from "react";
-import { ImageBackground, SafeAreaView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { useFonts } from "expo-font";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import AppText from "@/src/components/AppText";
 import Button from "@/src/components/Button";
-import { colors, spacing } from "@/src/theme";
+import { colors, fontSources, spacing } from "@/src/theme";
 
 export default function SplashScreen() {
+  const [fontsLoaded] = useFonts(fontSources);
+
   const handleGetStarted = () => {
-    console.log("Get Started");
+    router.push({ pathname: "/(tabs)", params: { mode: "guest" } });
   };
+
+  const handleSignIn = () => {
+    router.push({ pathname: "/(tabs)", params: { mode: "signedIn" } });
+  };
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -20,22 +45,57 @@ export default function SplashScreen() {
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
-          <View />
+          <View style={styles.topContent}>
+            <Text style={styles.headline}>
+              <Text style={styles.headlineItalic}>Your Smart </Text>
+              <Text style={styles.headlineBold}>Car{"\n"}Assistant</Text>
+            </Text>
+
+            <AppText variant="body" style={styles.subtext}>
+              Track, manage, and control your car{'\n'}effortlessly in one place.
+            </AppText>
+          </View>
 
           <View style={styles.bottomContent}>
-            <View style={styles.textContainer}>
-              <AppText variant="display" style={styles.title}>
-                Your Smart{"\n"}Car Assistant
-              </AppText>
+            <Button
+              title="Get Started"
+              onPress={handleGetStarted}
+              style={styles.getStartedButton}
+              textStyle={styles.getStartedText}
+              leftIcon={
+                <View style={styles.iconCircle}>
+                  <MaterialIcons
+                    name="directions-car"
+                    size={20}
+                    color="#fff"
+                  />
+                </View>
+              }
+              rightIcon={
+                <View style={styles.arrowRow}>
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={20}
+                    color={colors.primary}
+                  />
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={20}
+                    color={colors.primary}
+                    style={{ marginLeft: -8 }}
+                  />
+                </View>
+              }
+            />
 
-              <AppText variant="body" style={styles.subtitle}>
-                Understand your vehicle before
-                {"\n"}
-                visiting a mechanic.
+            <View style={styles.signInRow}>
+              <AppText variant="bodySmall" style={styles.signInText}>
+                Already have an account?{" "}
               </AppText>
+              <Pressable onPress={handleSignIn}>
+                <Text style={styles.signInLink}>Sign in</Text>
+              </Pressable>
             </View>
-
-            <Button title="Get Started" onPress={handleGetStarted} />
           </View>
         </View>
       </SafeAreaView>
@@ -44,13 +104,20 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.background,
+  },
+
   background: {
     flex: 1,
   },
 
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.28)",
+    backgroundColor: "rgba(0,0,0,0.35)",
   },
 
   safeArea: {
@@ -60,26 +127,74 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: "space-between",
-    padding: spacing.xl,
-  },
-
-  bottomContent: {
-    gap: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing["4xl"],
     paddingBottom: spacing.lg,
   },
 
-  textContainer: {
+  topContent: {
     gap: spacing.md,
   },
 
-  title: {
-    color: colors.text.inverse,
+  headline: {
+    fontSize: 40,
     lineHeight: 44,
+    color: colors.text.inverse,
   },
 
-  subtitle: {
+  headlineItalic: {
+    fontFamily: "Inter_400Regular_Italic",
+  },
+
+  headlineBold: {
+    fontFamily: "Inter_700Bold",
+  },
+
+  subtext: {
     color: colors.text.inverse,
-    opacity: 0.9,
-    lineHeight: 24,
+    opacity: 0.85,
+  },
+
+  bottomContent: {
+    gap: spacing.lg,
+  },
+
+  getStartedButton: {
+    backgroundColor: "#FFFFFF",
+  },
+
+  getStartedText: {
+    color: colors.text.primary,
+  },
+
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  arrowRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  signInRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  signInText: {
+    color: colors.text.inverse,
+    opacity: 0.85,
+  },
+
+  signInLink: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.primary,
   },
 });

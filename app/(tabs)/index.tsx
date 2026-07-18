@@ -1,5 +1,5 @@
-import SplashScreen from "@/src/screens/Splash";
+import Home from "@/src/screens/Home";
 
-export default function Home() {
-  return <SplashScreen />;
+export default function HomeRoute() {
+  return <Home />;
 }

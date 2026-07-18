@@ -1,9 +1,11 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
+  TextStyle,
+  View,
   ViewStyle,
 } from "react-native";
 
@@ -18,6 +20,10 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 export default function Button({
@@ -27,28 +33,56 @@ export default function Button({
   disabled = false,
   loading = false,
   fullWidth = true,
+  style,
+  textStyle,
+  leftIcon,
+  rightIcon,
 }: ButtonProps) {
-  const buttonStyles: ViewStyle[] = [
-    styles.button as ViewStyle,
-    styles[variant] as ViewStyle,
-    fullWidth && styles.fullWidth,
-    disabled && styles.disabled,
-  ];
-
-  const textStyles = [styles.text, styles[`${variant}Text` as const]];
+  const hasIcons = leftIcon || rightIcon;
 
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      style={({ pressed }) => [...buttonStyles, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        styles.button,
+        styles[variant],
+        fullWidth && styles.fullWidth,
+        disabled && styles.disabled,
+        pressed && styles.pressed,
+        style,
+      ]}
     >
       {loading ? (
         <ActivityIndicator
           color={variant === "primary" ? colors.text.inverse : colors.primary}
         />
+      ) : hasIcons ? (
+        <View style={styles.contentRow}>
+          {leftIcon && <View style={styles.leftSlot}>{leftIcon}</View>}
+          <Text
+            style={[
+              styles.text,
+              styles[`${variant}Text` as const],
+              styles.centeredText,
+              textStyle,
+            ]}
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
+          {rightIcon && <View style={styles.rightSlot}>{rightIcon}</View>}
+        </View>
       ) : (
-        <Text style={textStyles}>{title}</Text>
+        <Text
+          style={[
+            styles.text,
+            styles[`${variant}Text` as const],
+            textStyle,
+          ]}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -93,8 +127,28 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
+  contentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+  },
+
+  leftSlot: {
+    marginRight: spacing.sm,
+  },
+
+  rightSlot: {
+    marginLeft: spacing.sm,
+  },
+
   text: {
-    ...typography.text,
+    ...typography.body,
+    fontWeight: "600",
+  },
+
+  centeredText: {
+    flex: 1,
+    textAlign: "center",
   },
 
   primaryText: {
