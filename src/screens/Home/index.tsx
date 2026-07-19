@@ -21,8 +21,8 @@ export default function Home() {
 
           <Text style={styles.instruction}>
             Click on record so we can{"\n"}
-            diagnose what could be{"\n"}
-            wrong with your car.
+            help with the diagnosis{"\n"}
+            for your car.
           </Text>
         </View>
 
@@ -37,7 +37,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.backgroundGolden,
+    backgroundColor: colors.surfaceSecondary,
   },
 
   container: {
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
 
   illustration: {

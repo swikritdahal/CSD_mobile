@@ -24,7 +24,7 @@ export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
       <View style={styles.dock}>
         <View style={styles.content}>
           <Pressable style={styles.sideButton} onPress={handleHistory}>
-            <ClipboardList size={20} color={colors.text.secondary} />
+            <ClipboardList size={24} color={colors.text.secondary} />
             <Text style={styles.label}>History</Text>
           </Pressable>
 
@@ -33,7 +33,7 @@ export default function HomeBottomBar({ onRecord }: HomeBottomBarProps) {
           </View>
 
           <Pressable style={styles.sideButton} onPress={handleLogout}>
-            <LogOut size={20} color={colors.text.secondary} />
+            <LogOut size={24} color={colors.text.secondary} />
             <Text style={styles.label}>Logout</Text>
           </Pressable>
         </View>
@@ -47,43 +47,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
-    height: 64,
   },
 
   dock: {
     width: "100%",
-    maxWidth: 300,
+    maxWidth: 360,
     backgroundColor: "#FFFFFF",
-    borderRadius: 28,
+    borderRadius: 32,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
-    shadowRadius: 18,
-    elevation: 8,
+    shadowRadius: 24,
+    elevation: 10,
   },
 
   content: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
 
   sideButton: {
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.xs,
-    minWidth: 52,
+    minWidth: 64,
   },
 
   recordButton: {
-    marginTop: -36,
+    marginTop: -44,
   },
 
   label: {
     fontFamily: fontFamilies.regular,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.text.secondary,
   },
 });
