@@ -1,13 +1,3 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Animated,
-  FlatList,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 import { router } from "expo-router";
 import {
   AlertCircle,
@@ -18,9 +8,56 @@ import {
   ChevronRight,
   ClipboardList,
 } from "lucide-react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  FlatList,
+  LayoutAnimation,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  UIManager,
+  View,
+} from "react-native";
 
 import HomeBottomBar from "@/src/components/HomeBottomBar";
 import { colors, fontFamilies, radius, spacing } from "@/src/theme";
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+function useTypingAnimation(targetText: string, speed = 25) {
+  const [displayed, setDisplayed] = useState(targetText);
+  const indexRef = useRef(targetText.length);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    indexRef.current = 0;
+    setDisplayed("");
+
+    const type = () => {
+      if (indexRef.current <= targetText.length) {
+        setDisplayed(targetText.slice(0, indexRef.current));
+        indexRef.current++;
+        timerRef.current = setTimeout(type, speed);
+      }
+    };
+
+    timerRef.current = setTimeout(type, speed);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [targetText, speed]);
+
+  return displayed;
+}
 
 type Status = "healthy" | "needs-attention" | "critical";
 
@@ -309,7 +346,7 @@ function SkeletonBar({
           duration: 800,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
     loop.start();
     return () => loop.stop();
@@ -319,7 +356,11 @@ function SkeletonBar({
     <Animated.View
       style={[
         styles.skeletonBar,
-        { width: `${widthPercent}%` as unknown as number, height, opacity: pulseAnim },
+        {
+          width: `${widthPercent}%` as unknown as number,
+          height,
+          opacity: pulseAnim,
+        },
       ]}
     />
   );
@@ -363,6 +404,24 @@ export default function History() {
     setTimeout(() => setIsLoading(false), 500);
   };
 
+  const selectedCategoryLabel =
+    CATEGORY_FILTERS.find((f) => f.key === selectedCategory)?.label || "All";
+  const animatedChipText = useTypingAnimation(selectedCategoryLabel, 30);
+
+  const helpText = useMemo(() => {
+    const catText =
+      selectedCategory === "all"
+        ? "Showing all recordings..."
+        : `Showing ${STATUS_CONFIG[selectedCategory as Status]?.label.toLowerCase()} recordings...`;
+    const dateText =
+      selectedDateFilter !== "all"
+        ? ` · ${DATE_FILTERS.find((f) => f.key === selectedDateFilter)?.label.toLowerCase()}`
+        : "";
+    return catText + dateText;
+  }, [selectedCategory, selectedDateFilter]);
+
+  const animatedHelpText = useTypingAnimation(helpText, 20);
+
   const filteredRecordings = useMemo(() => {
     return MOCK_RECORDINGS.filter((r) => {
       if (selectedCategory !== "all" && r.status !== selectedCategory)
@@ -380,7 +439,7 @@ export default function History() {
     const map = new Map<string, Recording[]>();
 
     const sorted = [...filteredRecordings].sort(
-      (a, b) => b.dateObj.getTime() - a.dateObj.getTime()
+      (a, b) => b.dateObj.getTime() - a.dateObj.getTime(),
     );
 
     for (const recording of sorted) {
@@ -489,7 +548,12 @@ export default function History() {
         <View style={styles.dateFilterRow}>
           <Pressable
             style={styles.dateFilterButton}
-            onPress={() => setShowDatePicker(!showDatePicker)}
+            onPress={() => {
+              LayoutAnimation.configureNext(
+                LayoutAnimation.Presets.easeInEaseOut,
+              );
+              setShowDatePicker(!showDatePicker);
+            }}
           >
             <Calendar size={16} color={colors.primary} />
             <Text style={styles.dateFilterText}>{activeDateLabel}</Text>
@@ -509,17 +573,20 @@ export default function History() {
             {DATE_FILTERS.map((filter) => {
               const isSelected = selectedDateFilter === filter.key;
               return (
-              <Pressable
-                key={filter.key}
-                style={[
-                  styles.dateOption,
-                  isSelected && styles.dateOptionSelected,
-                ]}
-                onPress={() => {
-                  setSelectedDateFilter(filter.key);
-                  setShowDatePicker(false);
-                  triggerLoading();
-                }}
+                <Pressable
+                  key={filter.key}
+                  style={[
+                    styles.dateOption,
+                    isSelected && styles.dateOptionSelected,
+                  ]}
+                  onPress={() => {
+                    LayoutAnimation.configureNext(
+                      LayoutAnimation.Presets.easeInEaseOut,
+                    );
+                    setSelectedDateFilter(filter.key);
+                    setShowDatePicker(false);
+                    triggerLoading();
+                  }}
                 >
                   <Text
                     style={[
@@ -551,6 +618,9 @@ export default function History() {
               <Pressable
                 key={filter.key}
                 onPress={() => {
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.easeInEaseOut,
+                  );
                   setSelectedCategory(filter.key);
                   triggerLoading();
                 }}
@@ -561,28 +631,34 @@ export default function History() {
                     : { borderColor: chipColor, borderWidth: 1.5 },
                 ]}
               >
-                {filter.key !== "all" && (
+                {isSelected ? (
+                  <>
+                    {filter.key !== "all" && (
+                      <View
+                        style={[
+                          styles.chipDot,
+                          { backgroundColor: colors.surface },
+                        ]}
+                      />
+                    )}
+                    <Text
+                      style={[styles.chipText, { color: colors.text.inverse }]}
+                    >
+                      {animatedChipText}
+                    </Text>
+                  </>
+                ) : (
                   <View
-                    style={[
-                      styles.chipDot,
-                      { backgroundColor: chipColor },
-                      isSelected && { backgroundColor: colors.surface },
-                    ]}
+                    style={[styles.chipDot, { backgroundColor: chipColor }]}
                   />
                 )}
-                <Text
-                  style={[
-                    styles.chipText,
-                    isSelected
-                      ? { color: colors.text.inverse }
-                      : { color: chipColor },
-                  ]}
-                >
-                  {filter.label}
-                </Text>
               </Pressable>
             );
           })}
+        </View>
+
+        <View style={styles.helpTextContainer}>
+          <Text style={styles.helpText}>{animatedHelpText}</Text>
         </View>
 
         {isLoading ? (
@@ -602,9 +678,7 @@ export default function History() {
           <View style={styles.emptyState}>
             <ClipboardList size={48} color={colors.text.tertiary} />
             <Text style={styles.emptyTitle}>No recordings found</Text>
-            <Text style={styles.emptySubtitle}>
-              Try adjusting your filters
-            </Text>
+            <Text style={styles.emptySubtitle}>Try adjusting your filters</Text>
             {hasActiveFilters && (
               <Pressable style={styles.clearButton} onPress={clearAllFilters}>
                 <Text style={styles.clearButtonText}>Clear filters</Text>
@@ -853,6 +927,16 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.bold,
     fontSize: 14,
     color: colors.text.inverse,
+  },
+
+  helpTextContainer: {
+    marginBottom: spacing.md,
+  },
+
+  helpText: {
+    fontFamily: fontFamilies.italic,
+    fontSize: 12,
+    color: colors.text.tertiary,
   },
 
   skeletonBar: {

@@ -449,4 +449,157 @@ useEffect(() => {
 
 ---
 
-_Last updated: 2026-07-19_
+## Session: 2026-07-30
+
+### Summary
+
+Major rework of History, Analysis, SignIn, and SignUp screens. Introduced compact table-style rows, animated filters, typing animations, skeleton loaders, and clean minimal auth screens.
+
+---
+
+## History Screen Rework
+
+### `src/screens/History/index.tsx`
+
+#### Data & Filtering
+- Expanded mock data from 5 to 20 recordings spanning May–July 2026.
+- All three filters (category, date range, search) now **actually filter** the list.
+- Category filters: All / Healthy / Needs Attention / Critical.
+- Date filter: single dropdown with options (All time, This week, This month, Last 3 months, Last 6 months).
+- Added search field (later removed per user feedback).
+- Combined filters chain together: category + date range.
+
+#### Layout
+- Replaced card-based layout with **compact table-style rows** (Samsung Settings reference):
+  - Colored circular icon (status-based) on the left.
+  - Bold title + subtitle (`"Status · Date"`).
+  - ChevronRight indicator.
+  - Colored left border (3px) + tinted background based on status.
+  - Rows grouped by month with section headers (JULY 2026, etc.).
+- Reduced horizontal padding from `spacing.xl` (32px) to `spacing.lg` (24px) across all screens.
+
+#### Filter Animation
+- Filter chips now show **only the colored dot** when unselected.
+- When selected, chip expands to show dot + text with **LayoutAnimation** for smooth width transition.
+- `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` on chip press.
+- Android: `UIManager.setLayoutAnimationEnabledExperimental(true)` enabled.
+
+#### Typing Animation
+- Added `useTypingAnimation` hook — reveals text character-by-character using `setTimeout` loop.
+- Applied to **chip badge text** (30ms per character) — label types out when chip is selected.
+- Applied to **help text** (20ms per character) — text regenerates on filter change.
+- Help text is **italic** (`fontFamilies.italic`) and contextual (e.g. "Showing healthy recordings · this month").
+
+#### Help Text
+- Added italic help text between filters and list showing current filter state.
+- Updates dynamically when category or date filter changes.
+
+#### Skeleton Loaders
+- Added `SkeletonBar`, `SkeletonRow`, `SkeletonSection` components.
+- Animated pulse effect using `Animated.loop` with opacity 0.3↔0.7.
+- Shows 2 skeleton sections with 3 rows each when filters change (500ms loading state).
+
+#### Navigation
+- Card tap passes `{ id, title, status, date }` to `/analysis` via route params.
+
+#### Empty State
+- When filters return no results: `ClipboardList` icon + "No recordings found" + "Clear filters" button.
+
+---
+
+## Analysis Screen Rework
+
+### `src/screens/Analysis/index.tsx`
+
+#### Card Structure
+- Cards restructured with **distinct header/body sections**:
+  - Card header: light grey background (`colors.surfaceSecondary`), bottom border, icon + title.
+  - Card body: white background, padded content.
+- Card 1 header changed from "Recorded" to **"Spectrogram"**.
+- Card 1 body: recording title as bold primary text, date/time as subtitle. Removed degree element (`32°C ambient`).
+- **3 persistent cards** — only header + body content swaps on tab switch, card containers stay.
+
+#### Tabs
+- Redesigned tab bar: standalone rounded pills with border (unselected) vs filled (selected).
+- `borderWidth: 1.5`, `borderRadius: radius.full`.
+- Selected: `backgroundColor: colors.primary`, `borderColor: colors.primary`.
+- Unselected: transparent background, `borderColor: colors.border`.
+
+#### Skeleton Loaders
+- Added `SkeletonBar` and `SkeletonContent` components.
+- 600ms loading animation on tab switch with pulsing skeleton bars.
+
+#### Removed
+- "ML verified" tag from Most Likely Cause card. Only "High confidence" remains.
+
+#### Padding
+- Reduced horizontal padding from `spacing.xl` to `spacing.lg`.
+
+---
+
+## SignIn & SignUp Screen Rework
+
+### `src/screens/SignIn/index.tsx` & `src/screens/SignUp/index.tsx`
+
+#### Design
+- Removed `ImageBackground` and overlay.
+- Clean, minimal UI with `colors.surfaceSecondary` (off-white) background.
+- **CSD logo** at top center: `fontFamilies.bold`, `fontSize: 42`, `colors.primary`, `letterSpacing: 4`.
+
+#### Sign Up Fields
+- Name, ID (placeholder: "Email or mobile number (US)"), Password, Confirm Password.
+- Custom inline `TextInput` (not using Input component).
+- Labels turn **teal + bold** when field is focused.
+- Inputs get **teal border + light teal background** on focus.
+- Back button: white circle with grey ChevronLeft icon.
+
+#### Sign In Fields
+- ID, Password.
+- Same teal focus styling as Sign Up.
+- **"Forgot password?"** link aligned right below password field.
+- Back button with same styling.
+
+#### Both Screens
+- Footer links to alternate screen (Sign In ↔ Sign Up).
+- Consistent `spacing.xl` horizontal padding, `spacing.lg` gap between sections.
+
+---
+
+## Global Changes
+
+### Padding
+- All screens (Home, History, Analysis) reduced from `spacing.xl` (32px) to `spacing.lg` (24px) horizontal padding.
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `src/screens/History/index.tsx` | Full rework: 20 recordings, compact rows, animated filters, typing animation, skeletons, help text |
+| `src/screens/Analysis/index.tsx` | Card headers, tab redesign, Spectrogram card title, skeletons, removed ML verified |
+| `src/screens/SignIn/index.tsx` | Full rework: clean UI, CSD logo, teal focus, forgot password |
+| `src/screens/SignUp/index.tsx` | Full rework: clean UI, CSD logo, teal focus, 4 fields |
+| `src/screens/Home/index.tsx` | Reduced horizontal padding |
+
+---
+
+## Decisions Made
+
+1. **Fonts load once at the root.** `expo-splash-screen` keeps the native splash visible until `useFonts` resolves.
+2. **No auth state yet.** The app currently treats the user as already logged in on the home screen.
+3. **Icons come from `lucide-react-native` and `@expo/vector-icons`.**
+4. **Route wrappers are thin.** Each route file only imports and renders the screen component.
+5. **No new dependencies added.** All animations use React Native primitives (`Animated`, `LayoutAnimation`).
+6. **Typing animation** implemented via `useTypingAnimation` hook with `setTimeout` loop.
+
+---
+
+## Known Issues Left
+
+1. **`Button` component has TypeScript errors.** Deferred.
+
+2. **No real recording logic.** `RecordButton` and `HomeBottomBar` only accept an `onRecord` prop.
+
+3. **History data is mocked.** `MOCK_RECORDINGS` in `src/screens/History/index.tsx` is hard-coded.
+
+---
+
+_Last updated: 2026-07-30_
