@@ -350,7 +350,7 @@ function SkeletonBar({
     );
     loop.start();
     return () => loop.stop();
-  }, []);
+  });
 
   return (
     <Animated.View
